@@ -5,7 +5,7 @@ import com.aluracursos.java.ratecli.io.CurrencyCodesDeserializer;
 import com.aluracursos.java.ratecli.models.Currency;
 
 import java.io.IOException;
-import java.util.List;
+import java.util.HashMap;
 
 public class Main {
     public static void main(String[] args) {
@@ -26,15 +26,18 @@ public class Main {
             throw new RuntimeException(e);
         }
 
-        // Conversión de la respuesta recibida a una lista que se pueda manipular en este código
-        List<Currency> codesListParsedResponse = CurrencyCodesDeserializer.parseCurrencyCodeListResponse(codesListResponse);
+        // Conversión de la respuesta recibida (JSON) a un HashMap
+        HashMap<String, Currency> codesListParsedResponse = CurrencyCodesDeserializer.parseCurrencyCodeListResponse(codesListResponse);
 
         if (codesListParsedResponse.isEmpty()) {
             System.out.println("️⚠️ Ha ocurrido un error cargando la información. Intente de nuevo más tarde.");
             return;
         }
 
+        // Listar las divisas disponibles al usuario
         System.out.println("Listado de divisas disponibles:\n");
-        codesListParsedResponse.forEach(System.out::println);
+        codesListParsedResponse.forEach(
+                (key, value) -> System.out.println(key + " - " + value.name())
+        );
     }
 }
