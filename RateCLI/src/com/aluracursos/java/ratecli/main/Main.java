@@ -3,6 +3,7 @@ package com.aluracursos.java.ratecli.main;
 import com.aluracursos.java.ratecli.http.RequestHandler;
 import com.aluracursos.java.ratecli.io.CurrencyCodesDeserializer;
 import com.aluracursos.java.ratecli.models.Currency;
+import com.aluracursos.java.ratecli.models.CurrencyRates;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -94,7 +95,40 @@ public class Main {
             if (restartLoop) continue;
 
             System.out.println("Genial! has elegido la divisa: "
-                    + codesListParsedResponse.get(userResponse.toUpperCase()));
+                    + codesListParsedResponse.get(userResponse));
+
+            System.out.println("Preparando todo para iniciar el programa...");
+
+            // Carga de API KEY desde variables de entorno del SO
+            String currencyExchangeRateListURL =
+                    "https://v6.exchangerate-api.com/v6/"
+                            + System.getenv("RATECLI_API_KEY")
+                            + "/latest/"
+                            + userResponse;
+
+            // Solicitud de todas las divisas disponibles para operar
+            String currencyExchangeRateListResponse;
+
+            try {
+                currencyExchangeRateListResponse = RequestHandler.makeRequest(currencyExchangeRateListURL);
+            } catch (IOException | InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+
+            // Conversión de la respuesta recibida (JSON) a un HashMap
+            HashMap<String, CurrencyRates> currencyExchangeRateListParsedResponse = CurrencyCodesDeserializer.parseCurrencyExchangeRateListResponse(currencyExchangeRateListResponse);
+
+            if (currencyExchangeRateListParsedResponse.isEmpty()) {
+                System.out.println("️⚠️ Ha ocurrido un error cargando la información. Intente de nuevo más tarde.");
+                return;
+            }
+
+            // Listar las conversiones actuales al usuario
+            System.out.println("Listado de tasas de conversión actuales de: " + userResponse + "\n");
+            currencyExchangeRateListParsedResponse.forEach(
+                    (key, value) -> System.out.println(key + " - " + value.rate())
+            );
+
             firstLoop = false;
 
             System.out.println("\n" + "*".repeat(30) + "\n");
