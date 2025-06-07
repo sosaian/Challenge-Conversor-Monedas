@@ -39,46 +39,75 @@ public class Main {
 
         // Inicio del UX
         System.out.println("🛍️ Bienvenido a RateCLI!");
-        System.out.println("Por favor, ingresa el código de divisa desde la que quieras hacer conversiones.");
-        System.out.println("\n" + "*".repeat(30) + "\n");
+        System.out.println("La idea de este programa es hacer conversiones del tipo: \"1 USD a ARS\""
+                +" por lo que voy a ir pidiéndote ingresar cada valor de esta conversión.");
 
         Scanner scanner = new Scanner(System.in);
         String userResponse;
         boolean invalidUserResponse;
         boolean firstLoop = true;
         boolean restartLoop;
-
-        // Listar las divisas disponibles al usuario
-        System.out.println("Listado de divisas disponibles:\n");
-        codesListParsedResponse.forEach(
-                (key, value) -> System.out.println(key + " - " + value.name())
-        );
+        Double conversionAmount = null;
 
         do {
             userResponse = "0";
             invalidUserResponse = true;
             restartLoop = false;
 
-            if (!firstLoop) System.out.println("\nEscribe 1 para listar todas las divisas disponibles.");
-            System.out.println("\nEscribe 0 para salir.");
+            // Solicitar el monto de la divisa a convertir
+            do {
+                if (conversionAmount != null) break;
+
+                System.out.println("Ingresa el monto a convertir. ");
+                System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+                System.out.println("\nEscribe \"Q\" para salir.");
+                System.out.println("\n" + "*".repeat(30));
+
+                System.out.print("\n🔢 Monto a convertir: ");
+                userResponse = scanner.nextLine().trim().toUpperCase();
+
+                if (userResponse.equals("Q")) {
+                    System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
+                    return;
+                } else if (userResponse.equals("A")) {
+                    System.out.println("\nListado de divisas disponibles:\n");
+                    codesListParsedResponse.forEach(
+                            (key, value) -> System.out.println(key + " - " + value.name())
+                    );
+                    System.out.println("\n" + "*".repeat(30) + "\n");
+                    restartLoop = true;
+                } else {
+                    try {
+                        conversionAmount = Double.valueOf(userResponse);
+                    } catch (NumberFormatException e) {
+                        System.out.println("Entrada inválida. Por favor ingrese un número válido.");
+                    }
+                    invalidUserResponse = conversionAmount == null;
+                }
+            } while (invalidUserResponse);
+
+            if (restartLoop) continue;
+            invalidUserResponse = true;
+
+            // Solicitar la divisa base de la conversión.
+            System.out.println("Ahora ingresa el código de divisa desde la que quieras hacer conversiones.");
             System.out.println("\n" + "*".repeat(30));
 
-            // Solicitar la divisa a referenciar para las conversiones
             while (invalidUserResponse) {
                 try {
                     System.out.print("\n💵 Divisa a comparar: ");
                     userResponse = scanner.nextLine().trim().toUpperCase();
 
-                    if (userResponse.equals("0")) {
+                    if (userResponse.equals("Q")) {
                         System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
                         return;
-                    } else if (!firstLoop && userResponse.equals("1")) {
+                    } else if (!firstLoop && userResponse.equals("A")) {
                         System.out.println("\nListado de divisas disponibles:\n");
                         codesListParsedResponse.forEach(
                                 (key, value) -> System.out.println(key + " - " + value.name())
                         );
-                        System.out.println("\nEscribe 1 para listar todas las divisas disponibles.");
-                        System.out.println("\nEscribe 0 para salir.");
+                        System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+                        System.out.println("\nEscribe \"Q\" para salir.");
                         System.out.println("\n" + "*".repeat(30));
                         restartLoop = true;
                     } else if (codesListParsedResponse.get(userResponse) == null) {
@@ -96,8 +125,6 @@ public class Main {
 
             System.out.println("Genial! has elegido la divisa: "
                     + codesListParsedResponse.get(userResponse));
-
-            System.out.println("Preparando todo para iniciar el programa...");
 
             // Carga de API KEY desde variables de entorno del SO
             String currencyExchangeRateListURL =
