@@ -43,17 +43,11 @@ public class Main {
                 +" por lo que voy a ir pidiéndote ingresar cada valor de esta conversión.");
 
         Scanner scanner = new Scanner(System.in);
-        String userResponse;
-        boolean invalidUserResponse;
-        boolean firstLoop = true;
         Double conversionAmount;
         String baseCurrencyCode;
         String targetCurrencyCode;
 
         do {
-            userResponse = "0";
-            invalidUserResponse = true;
-
             // Solicitar el monto de la divisa a convertir
             conversionAmount = promptForAmount(scanner, codesListParsedResponse);
 
@@ -71,37 +65,12 @@ public class Main {
             }
 
             // Solicitar la divisa final de la conversión.
-            System.out.println("Ahora ingresa el código de divisa desde a la que quieras cambiar.");
-            System.out.println("\n" + "*".repeat(30));
+            targetCurrencyCode = promptForTargetCurrencyCode(scanner, codesListParsedResponse);
 
-            while (invalidUserResponse) {
-                try {
-                    System.out.print("\n💵 Divisa a recibir: ");
-                    userResponse = scanner.nextLine().trim().toUpperCase();
-
-                    if (userResponse.equals("Q")) {
-                        System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
-                        return;
-                    } else if (!firstLoop && userResponse.equals("A")) {
-                        System.out.println("\nListado de divisas disponibles:\n");
-                        codesListParsedResponse.forEach(
-                                (key, value) -> System.out.println(key + " - " + value.name())
-                        );
-                        System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
-                        System.out.println("\nEscribe \"Q\" para salir.");
-                        System.out.println("\n" + "*".repeat(30));
-                    } else if (codesListParsedResponse.get(userResponse) == null) {
-                        System.out.println("⚠️ El valor ingresado no es válido. Debe ser un código del listado.");
-                    } else {
-                        invalidUserResponse = false; // Cambiar el estado a válido si el código es válido.
-                    }
-                } catch (InputMismatchException e) {
-                    System.out.println("❌ Código inválido. " +
-                            "Por favor, ingresa un código de divisa (por ejemplo, ARS).");
-                }
+            if (targetCurrencyCode == null) {
+                System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
+                return;
             }
-
-            targetCurrencyCode = userResponse;
 
             // Carga de API KEY desde variables de entorno del SO
             String currencyExchangeRateListURL =
@@ -132,8 +101,6 @@ public class Main {
                     + " " + baseCurrencyCode + " = "
                     + currencyExchangeRateListParsedResponse.get(targetCurrencyCode).rate() * conversionAmount
                     + " " + targetCurrencyCode);
-
-            firstLoop = false;
 
             System.out.println("\n" + "*".repeat(30) + "\n");
             System.out.print("Presione la tecla Enter para continuar...");
@@ -192,6 +159,48 @@ public class Main {
         do {
             try {
                 System.out.print("\n💵 Divisa a comparar: ");
+                userResponse = scanner.nextLine().trim().toUpperCase();
+
+                if (userResponse.equals("Q")) return null;
+
+                if (userResponse.equals("A")) {
+                    System.out.println("\nListado de divisas disponibles:\n");
+                    codesListParsedResponse.forEach(
+                            (key, value) -> System.out.println(key + " - " + value.name())
+                    );
+                    System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+                    System.out.println("\nEscribe \"Q\" para salir.");
+                    System.out.println("\n" + "*".repeat(30));
+
+                    continue;
+                }
+            } catch (InputMismatchException e) {
+                System.out.println("❌ Código inválido. " +
+                        "Por favor, ingresa un código de divisa (por ejemplo, ARS).");
+            }
+
+            invalidUserResponse = codesListParsedResponse.get(userResponse) == null;
+
+            if (invalidUserResponse)
+                System.out.println("⚠️ El valor ingresado no es válido. Debe ser un código del listado.");
+        } while (invalidUserResponse);
+
+        return userResponse;
+    }
+
+    public static String promptForTargetCurrencyCode(Scanner scanner, HashMap<String, Currency> codesListParsedResponse) {
+        boolean invalidUserResponse = true;
+        String userResponse = "0";
+
+        System.out.println("\n" + "*".repeat(30));
+        System.out.println("\nAhora ingresa el código de divisa desde a la que quieras cambiar.");
+        System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+        System.out.println("\nEscribe \"Q\" para salir.");
+        System.out.println("\n" + "*".repeat(30));
+
+        do {
+            try {
+                System.out.print("\n💵 Divisa a recibir: ");
                 userResponse = scanner.nextLine().trim().toUpperCase();
 
                 if (userResponse.equals("Q")) return null;
