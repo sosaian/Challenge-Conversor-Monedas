@@ -47,7 +47,7 @@ public class Main {
         boolean invalidUserResponse;
         boolean firstLoop = true;
         boolean restartLoop;
-        Double conversionAmount = null;
+        Double conversionAmount;
         String baseCurrencyCode;
         String targetCurrencyCode;
 
@@ -57,39 +57,12 @@ public class Main {
             restartLoop = false;
 
             // Solicitar el monto de la divisa a convertir
-            do {
-                if (conversionAmount != null) break;
+            conversionAmount = promptForAmount(scanner, codesListParsedResponse);
 
-                System.out.println("Ingresa el monto a convertir. ");
-                System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
-                System.out.println("\nEscribe \"Q\" para salir.");
-                System.out.println("\n" + "*".repeat(30));
-
-                System.out.print("\n🔢 Monto a convertir: ");
-                userResponse = scanner.nextLine().trim().toUpperCase();
-
-                if (userResponse.equals("Q")) {
-                    System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
-                    return;
-                } else if (userResponse.equals("A")) {
-                    System.out.println("\nListado de divisas disponibles:\n");
-                    codesListParsedResponse.forEach(
-                            (key, value) -> System.out.println(key + " - " + value.name())
-                    );
-                    System.out.println("\n" + "*".repeat(30) + "\n");
-                    restartLoop = true;
-                } else {
-                    try {
-                        conversionAmount = Double.valueOf(userResponse);
-                    } catch (NumberFormatException e) {
-                        System.out.println("Entrada inválida. Por favor ingrese un número válido.");
-                    }
-                    invalidUserResponse = conversionAmount == null;
-                }
-            } while (invalidUserResponse);
-
-            if (restartLoop) continue;
-            invalidUserResponse = true;
+            if (conversionAmount == null) {
+                System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
+                return;
+            }
 
             // Solicitar la divisa base de la conversión.
             System.out.println("Ahora ingresa el código de divisa desde la que quieras hacer conversiones.");
@@ -198,5 +171,41 @@ public class Main {
             System.out.println("\n" + "*".repeat(30) + "\n");
             System.out.println("Por favor, ingresa el código de divisa desde la que quieras hacer conversiones.");
         } while(true);
+    }
+
+    public static Double promptForAmount(Scanner scanner, HashMap<String, Currency> codesListParsedResponse) {
+        boolean invalidUserResponse = true;
+        String userResponse;
+        Double conversionAmount = null;
+
+        do {
+            System.out.println("Ingresa el monto a convertir. ");
+            System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+            System.out.println("\nEscribe \"Q\" para salir.");
+            System.out.println("\n" + "*".repeat(30));
+
+            System.out.print("\n🔢 Monto a convertir: ");
+            userResponse = scanner.nextLine().trim().toUpperCase();
+
+            if (userResponse.equals("Q")) {
+                System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
+                return null;
+            } else if (userResponse.equals("A")) {
+                System.out.println("\nListado de divisas disponibles:\n");
+                codesListParsedResponse.forEach(
+                        (key, value) -> System.out.println(key + " - " + value.name())
+                );
+                System.out.println("\n" + "*".repeat(30) + "\n");
+            } else {
+                try {
+                    conversionAmount = Double.valueOf(userResponse);
+                } catch (NumberFormatException e) {
+                    System.out.println("Entrada inválida. Por favor ingrese un número válido.");
+                }
+                invalidUserResponse = conversionAmount == null;
+            }
+        } while (invalidUserResponse);
+
+        return conversionAmount;
     }
 }
