@@ -48,6 +48,8 @@ public class Main {
         boolean firstLoop = true;
         boolean restartLoop;
         Double conversionAmount = null;
+        String baseCurrencyCode;
+        String targetCurrencyCode;
 
         do {
             userResponse = "0";
@@ -122,16 +124,48 @@ public class Main {
             }
 
             if (restartLoop) continue;
+            baseCurrencyCode = userResponse;
+            invalidUserResponse = true;
 
-            System.out.println("Genial! has elegido la divisa: "
-                    + codesListParsedResponse.get(userResponse));
+            // Solicitar la divisa final de la conversión.
+            System.out.println("Ahora ingresa el código de divisa desde a la que quieras cambiar.");
+            System.out.println("\n" + "*".repeat(30));
+
+            while (invalidUserResponse) {
+                try {
+                    System.out.print("\n💵 Divisa a recibir: ");
+                    userResponse = scanner.nextLine().trim().toUpperCase();
+
+                    if (userResponse.equals("Q")) {
+                        System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
+                        return;
+                    } else if (!firstLoop && userResponse.equals("A")) {
+                        System.out.println("\nListado de divisas disponibles:\n");
+                        codesListParsedResponse.forEach(
+                                (key, value) -> System.out.println(key + " - " + value.name())
+                        );
+                        System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+                        System.out.println("\nEscribe \"Q\" para salir.");
+                        System.out.println("\n" + "*".repeat(30));
+                    } else if (codesListParsedResponse.get(userResponse) == null) {
+                        System.out.println("⚠️ El valor ingresado no es válido. Debe ser un código del listado.");
+                    } else {
+                        invalidUserResponse = false; // Cambiar el estado a válido si el código es válido.
+                    }
+                } catch (InputMismatchException e) {
+                    System.out.println("❌ Código inválido. " +
+                            "Por favor, ingresa un código de divisa (por ejemplo, ARS).");
+                }
+            }
+
+            targetCurrencyCode = userResponse;
 
             // Carga de API KEY desde variables de entorno del SO
             String currencyExchangeRateListURL =
                     "https://v6.exchangerate-api.com/v6/"
                             + System.getenv("RATECLI_API_KEY")
                             + "/latest/"
-                            + userResponse;
+                            + baseCurrencyCode;
 
             // Solicitud de todas las divisas disponibles para operar
             String currencyExchangeRateListResponse;
@@ -150,11 +184,7 @@ public class Main {
                 return;
             }
 
-            // Listar las conversiones actuales al usuario
-            System.out.println("Listado de tasas de conversión actuales de: " + userResponse + "\n");
-            currencyExchangeRateListParsedResponse.forEach(
-                    (key, value) -> System.out.println(key + " - " + value.rate())
-            );
+            System.out.println("La conversión elegida es de: $" + currencyExchangeRateListParsedResponse.get(targetCurrencyCode));
 
             firstLoop = false;
 
