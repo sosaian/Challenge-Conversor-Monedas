@@ -184,7 +184,11 @@ public class Main {
                 return;
             }
 
-            System.out.println("La conversión elegida es de: $" + currencyExchangeRateListParsedResponse.get(targetCurrencyCode));
+            System.out.println("La conversión elegida es de: "
+                    + conversionAmount
+                    + " " + baseCurrencyCode + " = "
+                    + currencyExchangeRateListParsedResponse.get(targetCurrencyCode).rate() * conversionAmount
+                    + " " + targetCurrencyCode);
 
             firstLoop = false;
 
