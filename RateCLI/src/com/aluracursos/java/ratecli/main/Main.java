@@ -178,17 +178,17 @@ public class Main {
         String userResponse;
         Double conversionAmount = null;
 
-        do {
-            System.out.println("Ingresa el monto a convertir. ");
-            System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
-            System.out.println("\nEscribe \"Q\" para salir.");
-            System.out.println("\n" + "*".repeat(30));
+        System.out.println("\n" + "*".repeat(30));
+        System.out.println("\nIngresa el monto a convertir. ");
+        System.out.println("\nEscribe \"A\" para listar todas las divisas disponibles.");
+        System.out.println("\nEscribe \"Q\" para salir.");
+        System.out.println("\n" + "*".repeat(30));
 
+        do {
             System.out.print("\n🔢 Monto a convertir: ");
             userResponse = scanner.nextLine().trim().toUpperCase();
 
             if (userResponse.equals("Q")) {
-                System.out.println("👋🏿 Gracias por usar RateCLI, cerrando programa...");
                 return null;
             } else if (userResponse.equals("A")) {
                 System.out.println("\nListado de divisas disponibles:\n");
