@@ -3,7 +3,7 @@ package com.aluracursos.java.ratecli.main;
 import com.aluracursos.java.ratecli.http.RequestHandler;
 import com.aluracursos.java.ratecli.io.CurrencyCodesDeserializer;
 import com.aluracursos.java.ratecli.models.Currency;
-import com.aluracursos.java.ratecli.models.CurrencyRates;
+import com.aluracursos.java.ratecli.models.CurrencyExchangeRateListResult;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -88,19 +88,19 @@ public class Main {
                 throw new RuntimeException(e);
             }
 
-            // Conversión de la respuesta recibida (JSON) a un HashMap
-            HashMap<String, CurrencyRates> currencyExchangeRateListParsedResponse = CurrencyCodesDeserializer.parseCurrencyExchangeRateListResponse(currencyExchangeRateListResponse);
+            // Conversión de la respuesta recibida (JSON) a un objeto que contiene el timestamp y el HashMap
+            CurrencyExchangeRateListResult currencyExchangeRateListParsedResponse = CurrencyCodesDeserializer.parseCurrencyExchangeRateListResponse(currencyExchangeRateListResponse);
 
-            if (currencyExchangeRateListParsedResponse.isEmpty()) {
+            if (currencyExchangeRateListParsedResponse.currencyRates().isEmpty()) {
                 System.out.println("️⚠️ Ha ocurrido un error cargando la información. Intente de nuevo más tarde.");
                 return;
             }
 
-            System.out.println("La conversión elegida es de: "
-                    + conversionAmount
-                    + " " + baseCurrencyCode + " = "
-                    + currencyExchangeRateListParsedResponse.get(targetCurrencyCode).rate() * conversionAmount
-                    + " " + targetCurrencyCode);
+            String conversionText = + conversionAmount + " " + baseCurrencyCode + " = "
+                    + currencyExchangeRateListParsedResponse.currencyRates().get(targetCurrencyCode).rate() * conversionAmount
+                    + " " + targetCurrencyCode;
+
+            System.out.println("La conversión elegida es de: " + conversionText);
 
             System.out.println("\n" + "*".repeat(30) + "\n");
             System.out.print("Presione la tecla Enter para continuar...");
