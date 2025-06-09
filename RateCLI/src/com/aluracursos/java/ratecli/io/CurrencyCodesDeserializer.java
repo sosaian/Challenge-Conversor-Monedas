@@ -1,9 +1,6 @@
 package com.aluracursos.java.ratecli.io;
 
-import com.aluracursos.java.ratecli.models.Currency;
-import com.aluracursos.java.ratecli.models.CurrencyRates;
-import com.aluracursos.java.ratecli.models.ExchangeRateAPICurrencyCodesListResponse;
-import com.aluracursos.java.ratecli.models.ExchangeRateAPICurrencyRatesListResponse;
+import com.aluracursos.java.ratecli.models.*;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
@@ -27,7 +24,7 @@ public class CurrencyCodesDeserializer {
         return currencyHashMap;
     }
 
-    public static HashMap<String, CurrencyRates> parseCurrencyExchangeRateListResponse(String json) {
+    public static CurrencyExchangeRateListResult parseCurrencyExchangeRateListResponse(String json) {
         Gson gson = new Gson();
         ExchangeRateAPICurrencyRatesListResponse parsedResponse = gson.fromJson(json, ExchangeRateAPICurrencyRatesListResponse.class);
 
@@ -38,6 +35,6 @@ public class CurrencyCodesDeserializer {
             currencyRatesHashMap.put(code, new CurrencyRates(code, rate));
         }
 
-        return currencyRatesHashMap;
+        return new CurrencyExchangeRateListResult(parsedResponse.time_last_update_utc(), currencyRatesHashMap);
     }
 }
